@@ -1,113 +1,103 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
-  ScrollView,
+  FlatList,
   View,
   Text,
-  StatusBar,
+  Image,
+  TouchableOpacity,
 } from 'react-native';
-
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const App: () => React$Node = () => {
+  const renderItem = (props) => (
+    <View style={styles.itemWrapper}>
+      <TouchableOpacity>
+        <Icon
+          style={styles.downloadIcon}
+          name="cloud-download"
+          color="#707070"
+          size={24}
+        />
+      </TouchableOpacity>
+      <View style={styles.itemTextWrapper}>
+        <Text style={styles.itemTitle}>
+          خاطره انگیز; شادی مردم پس از برد ایران مقابل مراکش
+        </Text>
+        <Text style={styles.time}>8 ساعت پیش</Text>
+      </View>
+      <Image
+        source={{
+          uri: 'https://static.farakav.com/files/pictures/thumb/01310359.jpg',
+        }}
+        style={styles.itemImage}
+      />
+    </View>
+  );
+  const listHeaderComponent = () => (
+    <View style={styles.headerWrapper}>
+      <Text style={styles.headerText}>خبرهای ورزشی</Text>
+    </View>
+  );
+  const keyExtractor = ({id}) => `${id}`;
+
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+    <FlatList
+      contentContainerStyle={styles.contentContainer}
+      ListHeaderComponent={listHeaderComponent}
+      data={[{id: 1}, {id: 2}, {id: 3}]}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+  headerWrapper: {
+    backgroundColor: '#eee',
+    paddingTop: 52,
+    paddingBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
+  headerText: {
+    color: '#009688',
+    fontSize: 20,
   },
-  body: {
-    backgroundColor: Colors.white,
+  time: {
+    fontSize: 14,
+    color: '#707070',
   },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  itemTextWrapper: {
+    marginRight: 16,
+    width: 0,
+    flexGrow: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
+  itemTitle: {fontSize: 16, textAlign: 'right', color: '#333'},
+  itemTitleWrapper: {width: 0, flexGrow: 1},
+  downloadIcon: {
+    marginRight: 'auto',
   },
-  sectionDescription: {
+  contentContainer: {
+    flexGrow: 1,
+    backgroundColor: '#eee',
+  },
+  itemWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 12,
+    paddingVertical: 0,
+    borderRadius: 4,
     marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
+    marginHorizontal: 8,
   },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  itemImage: {
+    height: 50,
+    width: 85,
+    borderRadius: 5,
   },
 });
 
