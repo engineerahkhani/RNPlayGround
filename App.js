@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   FlatList,
@@ -9,8 +9,32 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+const API_URI = 'https://video.varzesh3.com/api/video/2';
+
 const App: () => React$Node = () => {
-  const renderItem = (props) => (
+  const [loading, setLoading] = useState(false);
+  const [hasError, setErrors] = useState(false);
+  const [medias, setMedias] = useState([]);
+
+  async function fetchData() {
+    setLoading(true);
+    const response = await fetch(API_URI);
+    response
+      .json()
+      .then((data) => {
+        setMedias(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setErrors(err);
+        setLoading(false);
+      });
+  }
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const renderItem = ({item, index}) => (
     <View style={styles.itemWrapper}>
       <TouchableOpacity>
         <Icon
@@ -21,16 +45,15 @@ const App: () => React$Node = () => {
         />
       </TouchableOpacity>
       <View style={styles.itemTextWrapper}>
-        <Text style={styles.itemTitle}>
-          خاطره انگیز; شادی مردم پس از برد ایران مقابل مراکش
-        </Text>
-        <Text style={styles.time}>8 ساعت پیش</Text>
+        <Text style={styles.itemTitle}>{item.Title}</Text>
+        <Text style={styles.time}>{item.RelativeDate}</Text>
       </View>
       <Image
         source={{
-          uri: 'https://static.farakav.com/files/pictures/thumb/01310359.jpg',
+          uri: item.Thumb,
         }}
         style={styles.itemImage}
+        resizeMode="stretch"
       />
     </View>
   );
@@ -39,15 +62,14 @@ const App: () => React$Node = () => {
       <Text style={styles.headerText}>خبرهای ورزشی</Text>
     </View>
   );
-  const keyExtractor = ({id}) => `${id}`;
 
   return (
     <FlatList
       contentContainerStyle={styles.contentContainer}
       ListHeaderComponent={listHeaderComponent}
-      data={[{id: 1}, {id: 2}, {id: 3}]}
+      data={medias}
       renderItem={renderItem}
-      keyExtractor={keyExtractor}
+      keyExtractor={(item, index) => item.Id}
     />
   );
 };
@@ -83,6 +105,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flexGrow: 1,
     backgroundColor: '#eee',
+    paddingBottom: 8,
   },
   itemWrapper: {
     flexDirection: 'row',
