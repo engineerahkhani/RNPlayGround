@@ -13,6 +13,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ProgressBar from './ProgressBar';
 import RNBackgroundDownloader from 'react-native-background-downloader';
+import RNFetchBlob from 'rn-fetch-blob';
 
 const API_URI = 'https://video.varzesh3.com/api/video/2';
 const preventParentEvent = (e) => e.stopPropagation();
@@ -24,23 +25,37 @@ const App: () => React$Node = () => {
   const [files, setFiles] = useState([]);
   const [visible, setVisible] = useState(false);
   const [downloadPercent, setDownloadPercent] = useState(0);
-  async function fetchData() {
+  const checkExists = async (item) => {
+    const localDir = item.FileUri.replace(
+      'https://static-video.varzesh3.com/local/',
+      RNBackgroundDownloader.directories.documents,
+    );
+    const downloaded = await RNFetchBlob.fs.exists(localDir);
+    return {...item, downloaded, localDir};
+  };
+  const checkData = async (data) => {
+    return Promise.all(data.map((item) => checkExists(item)));
+  };
+  const fetchData = async () => {
     setLoading(true);
     const response = await fetch(API_URI);
     response
       .json()
-      .then((data) => {
-        setFiles(data);
-        setLoading(false);
+      .then((responseData) => {
+        checkData(responseData).then((data) => {
+          setFiles(data);
+          setLoading(false);
+        });
       })
       .catch((err) => {
         setErrors(err);
         setLoading(false);
       });
-  }
+  };
   useEffect(() => {
     fetchData();
   }, []);
+
   const visibleModalHandler = (item) => {
     setVisible(true);
     downloadHandler(item);
@@ -72,15 +87,10 @@ const App: () => React$Node = () => {
     );
   };
   const downloadHandler = (item) => {
-    const destination = item.FileUri.replace(
-      'https://static-video.varzesh3.com/local/',
-      RNBackgroundDownloader.directories.documents,
-    );
-    console.log('destination', destination);
     RNBackgroundDownloader.download({
       id: `video_${item.Id}`,
       url: item.FileUri,
-      destination,
+      destination: item.localDir,
     })
       .begin((expectedBytes) => {
         console.log(`Going to download ${expectedBytes} bytes!`);
